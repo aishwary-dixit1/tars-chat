@@ -1,22 +1,28 @@
-import { UserButton } from "@clerk/nextjs";
+"use client";
+
+import { useState } from "react";
 import SyncUser from "./components/SyncUser";
+import Sidebar from "./components/Sidebar";
+import ChatArea from "./components/ChatArea";
 
 export default function Home() {
+  const [activeConversation, setActiveConversation] = useState<string | null>(null);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-      {/* This handles the database sync silently in the background 
-        when the user hits the page. 
-      */}
+    <main className="flex h-screen w-full bg-gray-100 overflow-hidden">
       <SyncUser />
 
-      <div className="bg-white p-8 rounded-2xl shadow-lg flex flex-col items-center space-y-4">
-        <h1 className="text-2xl font-bold text-gray-800">Welcome to Tars Chat</h1>
-        <p className="text-gray-500 mb-4">You are successfully authenticated.</p>
-        
-        {/* Clerk's pre-built avatar and account management button */}
-        <div className="border border-gray-200 p-2 rounded-full">
-          <UserButton afterSignOutUrl="/sign-in" />
-        </div>
+      {/* Sidebar Container: Hidden on mobile if a chat is active */}
+      <div className={`w-full md:w-80 lg:w-96 flex-shrink-0 transition-all ${activeConversation ? 'hidden md:block' : 'block'}`}>
+        <Sidebar onSelect={(id) => setActiveConversation(id)} />
+      </div>
+
+      {/* Chat Area Container: Hidden on mobile if NO chat is active */}
+      <div className={`flex-1 transition-all ${!activeConversation ? 'hidden md:flex' : 'flex'}`}>
+        <ChatArea 
+          conversationId={activeConversation} 
+          onBack={() => setActiveConversation(null)} 
+        />
       </div>
     </main>
   );
